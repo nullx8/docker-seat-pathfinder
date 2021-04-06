@@ -3,5 +3,5 @@ A custom Docker-Compose for deploying EVE SeAT + Pathfinder.
 
 ## Building the image
 ```
-docker build -t pathfinder:dev -f ./pathfinder/Dockerfile
+docker build --build-arg VERSION=master -t pathfinder:dev -f ./pathfinder/Dockerfile
 ```
