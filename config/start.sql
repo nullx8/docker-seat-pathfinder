@@ -1,0 +1,3 @@
+CREATE DATABASE pathfinder;
+CREATE DATABASE eve_universe;
+CREATE DATABASE seat;
