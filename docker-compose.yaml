@@ -1,118 +1,134 @@
 version: '3'
 
 services:
-    mariadb:
-        image: mariadb:10
-        restart: always
-        environment:
-          MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-          MYSQL_USER: ${DB_USERNAME}
-          MYSQL_PASSWORD: ${DB_PASSWORD}
-        volumes:
-          - "mariadb-data:/var/lib/mysql"
-          - ./config/start.sql:/docker-entrypoint-initdb.d/start.sql
-          - ./config/eve_universe.sql:/docker-entrypoint-initdb.d/eve_universe.sql
-        networks:
-          - seat-network
-        logging:
-          driver: "json-file"
-          options:
-            max-size: "10Mb"
-            max-file: "5"
+  nginx:
+    image: nginx:1.19.9
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - pathfinder-public:/var/www/pathfinder/public
+      - ./config/seat-web.conf:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - pathfinder-php
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
 
-    redis:
-        image: redis:5-alpine
-        restart: always
-        networks:
-            - seat-network
-        logging:
-            driver: "json-file"
-            options:
-            max-size: "10Mb"
-            max-file: "5"
+  mariadb:
+    image: mariadb:10
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - "mariadb-data:/var/lib/mysql"
+      - ./config/start.sql:/docker-entrypoint-initdb.d/start.sql
+      - ./config/eve_universe.sql:/docker-entrypoint-initdb.d/eve_universe.sql
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
 
-    pathfinder-php:
-        build:
-            contenxt: ./pathfinder
-            args:
-                - VERSION=master
-        image: pathfinder:dev
-        ports:
-            - "8000:80"
-            - "8020:8020"
-        volumes:
-            - ./config/config.ini:/var/www/pathfinder/app/config.ini
-            - ./config/environment.ini:/var/www/pathfinder/app/environment.ini
-            - ./config/pathfinder.ini:/var/www/pathfinder/app/pathfinder.ini
-        networks:
-            - seat-network
-        logging:
-            driver: "json-file"
-            options:
-                max-size: "10Mb"
-                max-file: "5"
+  redis:
+    image: redis:5-alpine
+    restart: always
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
 
-    seat-web:
-        image: eveseat/seat:4
-        restart: always
-        command: web
-        env_file:
-            - .env
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.seat-web.rule=Host(`${SEAT_SUBDOMAIN}.${TRAEFIK_DOMAIN}`)"
-            - "traefik.http.routers.seat-web.entrypoints=websecure"
-            # Uncomment to enable HTTPS via ACME
-            #- "traefik.http.routers.seat-web.tls.certResolver=primary"
-        depends_on:
-            - mariadb
-            - redis
-        networks:
-            - seat-network
-        logging:
-            driver: "json-file"
-            options:
-            max-size: "10Mb"
-            max-file: "5"
+  pathfinder-php:
+    build:
+      context: ./pathfinder
+      args:
+        - VERSION=master
+    image: pathfinder:dev
+    command: php-fpm7.2 -F
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - pathfinder-public:/var/www/pathfinder/public
+      - ./config/config.ini:/var/www/pathfinder/app/config.ini
+      - ./config/environment.ini:/var/www/pathfinder/app/environment.ini
+      - ./config/pathfinder.ini:/var/www/pathfinder/app/pathfinder.ini
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
+
+  seat-web:
+    image: eveseat/seat:4
+    restart: always
+    command: web
+    env_file:
+      - .env
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
                 
-    seat-worker:
-        image: eveseat/seat:4
-        restart: always
-        command: worker
-        env_file:
-            - .env
-        depends_on:
-            - seat-web # so that we can get db migrations done
-            - mariadb
-            - redis
-        networks:
-            - seat-network
-        logging:
-            driver: "json-file"
-            options:
-            max-size: "10Mb"
-            max-file: "5"
+  seat-worker:
+    image: eveseat/seat:4
+    restart: always
+    command: worker
+    env_file:
+      - .env
+    depends_on:
+      - seat-web # so that we can get db migrations done
+      - mariadb
+      - redis
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
 
-    seat-cron:
-        image: eveseat/seat:4
-        restart: always
-        command: cron
-        env_file:
-            - .env
-        depends_on:
-            - seat-web # so that we can get db migrations done
-            - mariadb
-            - redis
-        networks:
-            - seat-network
-        logging:
-            driver: "json-file"
-            options:
-            max-size: "10Mb"
-            max-file: "5"
+  seat-cron:
+    image: eveseat/seat:4
+    restart: always
+    command: cron
+    env_file:
+      - .env
+    depends_on:
+      - seat-web # so that we can get db migrations done
+      - mariadb
+      - redis
+    networks:
+      - seat-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10Mb"
+        max-file: "5"
 
 volumes:
-    mariadb-data:
+  pathfinder-public:
+  mariadb-data:
 
 networks:
-    seat-network:
+  seat-network:

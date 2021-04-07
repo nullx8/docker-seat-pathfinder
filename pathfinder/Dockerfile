@@ -68,9 +68,8 @@ COPY ./www.conf /etc/php/7.2/fpm/pool.d/
 
 # CONFIGURE PHP7.2-FPM
 COPY ./php.ini /etc/php/7.2/fpm/
+RUN mkdir /run/php
 
 # SET UP CRONJOB
 COPY ./default_crontab /home/
 RUN crontab /home/default_crontab
-
-ENTRYPOINT ["entrypoint.sh"]
