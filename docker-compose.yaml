@@ -7,9 +7,9 @@ services:
     env_file:
       - .env
     volumes:
-      - pathfinder-public:/var/www/pathfinder/public
-      - ./config/seat-web.conf:/etc/nginx/conf.d
-      - /etc/letsencrypt:/etc/letsencrypt
+      - pathfinder-public:/var/www/pathfinder/public:ro
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - pathfinder-php
     networks:
@@ -29,8 +29,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - "mariadb-data:/var/lib/mysql"
-      - ./config/start.sql:/docker-entrypoint-initdb.d/start.sql
-      - ./config/eve_universe.sql:/docker-entrypoint-initdb.d/eve_universe.sql
+      - ./config/start.sql:/docker-entrypoint-initdb.d/start.sql:ro
+      - ./config/eve_universe.sql:/docker-entrypoint-initdb.d/eve_universe.sql:ro
     networks:
       - seat-network
     logging:
@@ -62,9 +62,9 @@ services:
       - redis
     volumes:
       - pathfinder-public:/var/www/pathfinder/public
-      - ./config/config.ini:/var/www/pathfinder/app/config.ini
-      - ./config/environment.ini:/var/www/pathfinder/app/environment.ini
-      - ./config/pathfinder.ini:/var/www/pathfinder/app/pathfinder.ini
+      - ./config/config.ini:/var/www/pathfinder/app/config.ini:ro
+      - ./config/environment.ini:/var/www/pathfinder/app/environment.ini:ro
+      - ./config/pathfinder.ini:/var/www/pathfinder/app/pathfinder.ini:ro
     networks:
       - seat-network
     logging:
