@@ -73,3 +73,5 @@ RUN mkdir /run/php
 # SET UP CRONJOB
 COPY ./default_crontab /home/
 RUN crontab /home/default_crontab
+
+EXPOSE 9000
