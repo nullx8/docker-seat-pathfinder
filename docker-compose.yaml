@@ -64,7 +64,7 @@ services:
       - mariadb
       - redis
     volumes:
-      - pathfinder-public:/var/www/pathfinder/public
+      - pathfinder-public:/var/www/pathfinder
       - ./config/config.ini:/var/www/pathfinder/app/config.ini:ro
       - ./config/environment.ini:/var/www/pathfinder/app/environment.ini:ro
       - ./config/pathfinder.ini:/var/www/pathfinder/app/pathfinder.ini:ro
