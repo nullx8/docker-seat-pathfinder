@@ -28,3 +28,9 @@ docker-compose up -d
 # This command will create two timestamped .gz files containing SQL dumps into the working directory
 ./command.sh backup
 ```
+
+## Restoring the database
+```bash
+zcat seat_backup.sql.gz | docker-compose exec -T mariadb sh -c 'exec mysql "seat" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD"'
+zcat pathfinder_backup.sql.gz | docker-compose exec -T mariadb sh -c 'exec mysql "pathfinder" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD"'
+```
