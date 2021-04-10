@@ -47,6 +47,8 @@ services:
   redis:
     image: redis:5-alpine
     restart: always
+    volumes:
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     networks:
       - seat-network
     logging:
