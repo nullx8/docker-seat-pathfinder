@@ -5,6 +5,7 @@ services:
     build: ./nginx
     image: nginx:seatdev
     restart: always
+    privileged: true  # Neccessary for now. Find a way to not do this!
     env_file:
       - .env
     volumes:
