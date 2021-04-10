@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     volumes:
-      - pathfinder-public:/var/www/pathfinder/public:ro
+      - pathfinder-public:/var/www/pathfinder:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf.template:ro
       - ./config/nginx/conf.d:/etc/nginx/conf.d/templates:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
