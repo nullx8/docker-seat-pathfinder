@@ -16,7 +16,7 @@ backup() {
 }
 
 disable-setup-path() {
-    docker-compose exec pathfinder-php sh -c 'sed -i "s/GET @setup/#GET @setup/g" /var/www/pathfinder/app/routes.ini'
+    docker-compose exec pathfinder-php sh -c 'sed -i "s/GET @setup/;GET @setup/g" /var/www/pathfinder/app/routes.ini'
 }
 
 import-universe() {
@@ -24,6 +24,8 @@ import-universe() {
     unzip eve_universe.sql.zip
     docker cp eve_universe.sql "$(sudo docker-compose ps | grep db | awk '{ print $1}'):/eve_universe.sql"
     docker-compose exec mariadb sh -c 'exec mysql -u$MYSQL_USER -p"$MYSQL_ROOT_PASSWORD" eve_universe < /eve_universe.sql'
+    docker-compose exec mariadb sh -c 'rm -f /eve_universe.sql'
+    rm eve_universe.sql*
 }
 
 case $1 in
