@@ -8,7 +8,23 @@ A custom Docker-Compose for deploying EVE SeAT + Pathfinder.
 - Much of `docker-compose.yaml` and `command.sh`: [eveseat](https://github.com/eveseat) / [seat-docker](https://github.com/eveseat/seat-docker)
 - h5bp Nginx configs: [h5bp](https://github.com/h5bp) / [server-configs-nginx](https://github.com/h5bp/server-configs-nginx)
 
-## Building the image
+## Building the images
 ```
-docker build --build-arg VERSION=master -t pathfinder:dev -f ./pathfinder/Dockerfile
+docker-compose build
+```
+
+## Setup
+Prior to starting this step, you should already have your certificates ready. You also need to copy `.env.example` to `.env` and fill that out. Additionally `config.ini`, `environment.ini`, and `pathfinder.ini` must be coppied from `config/templates` to `config` and filled out as well.
+```bash
+docker-compose up -d
+
+# Go to https://pathfinder.YOUR_DOMAIN/setup and perform all setup, then return to this point.
+./command.sh disable-setup
+./command.sh import-universe
+```
+
+## Backing up the database
+```bash
+# This command will create two timestamped .gz files containing SQL dumps into the working directory
+./command.sh backup
 ```
