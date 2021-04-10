@@ -25,7 +25,7 @@ import-universe() {
     docker cp eve_universe.sql "$(sudo docker-compose ps | grep db | awk '{ print $1}'):/eve_universe.sql"
     docker-compose exec mariadb sh -c 'exec mysql -u$MYSQL_USER -p"$MYSQL_PASSWORD" eve_universe < /eve_universe.sql'
     docker-compose exec mariadb sh -c 'rm -f /eve_universe.sql'
-    rm eve_universe.sql*
+    rm -f eve_universe.sql*
 }
 
 case $1 in
