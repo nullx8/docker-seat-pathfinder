@@ -62,9 +62,9 @@ services:
     build:
       context: ./pathfinder
       args:
-        - VERSION=master
+        - VERSION=kaz-dev
     image: pathfinder:seatdev
-    command: php-fpm7.2 -F
+    command: php-fpm7.2 -F 
     depends_on:
       - mariadb
       - redis
